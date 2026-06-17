@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BANNED — Social Media Censorship Tracker</title>
+  <meta name="description" content="A real-time tracker for social media bans, platform restrictions, and digital censorship legislation worldwide." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --border: 1.5px solid #000;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--white);
+      color: var(--black);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--black);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 52px;
+      border-bottom: var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+
+    .nav-links a:hover { opacity: 1; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--black);
+      color: var(--white);
+      padding: 6rem 2rem 5rem;
+      border-bottom: 3px solid var(--white);
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(4.5rem, 12vw, 10rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.5rem;
+      max-width: 900px;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      max-width: 600px;
+      opacity: 0.75;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 2rem;
+      margin-top: 1rem;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 3px solid var(--black);
+      padding-bottom: 1rem;
+    }
+
+    .section-num {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      opacity: 0.2;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── PLATFORM TRACKER ── */
+    #tracker { border-bottom: var(--border); }
+
+    .tracker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 0;
+      border-top: var(--border);
+      border-left: var(--border);
+    }
+
+    .platform-card {
+      border-right: var(--border);
+      border-bottom: var(--border);
+      padding: 1.5rem;
+      transition: background 0.15s;
+    }
+
+    .platform-card:hover {
+      background: #f4f4f4;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .platform-name {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 0.03em;
+      line-height: 1;
+    }
+
+    .status-badge {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.6rem;
+      border: 1.5px solid var(--black);
+      white-space: nowrap;
+    }
+
+    .status-badge.banned { background: var(--black); color: var(--white); }
+    .status-badge.restricted { background: var(--black); color: var(--white); border-style: dashed; }
+    .status-badge.active { background: var(--white); color: var(--black); }
+    .status-badge.at-risk { background: var(--white); color: var(--black); border-style: dashed; }
+
+    .card-countries {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: #555;
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+
+    .card-latest {
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #333;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .card-date {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: #999;
+      margin-top: 0.5rem;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── LEGISLATION TRACKER ── */
+    #legislation { background: var(--black); color: var(--white); }
+    #legislation .section-header { border-color: var(--white); }
+    #legislation .section-num { color: var(--white); opacity: 0.2; }
+
+    .leg-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .leg-table th {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1.5px solid rgba(255,255,255,0.3);
+      opacity: 0.5;
+    }
+
+    .leg-table td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    .leg-table tr:hover td { background: rgba(255,255,255,0.04); }
+
+    .leg-country {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .leg-status {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 1px solid;
+      padding: 0.2rem 0.5rem;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .leg-status.passed { border-color: var(--white); background: var(--white); color: var(--black); }
+    .leg-status.pending { border-color: rgba(255,255,255,0.5); }
+    .leg-status.defeated { border-color: rgba(255,255,255,0.2); opacity: 0.5; text-decoration: line-through; }
+
+    /* ── NEWS FEED ── */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .news-card {
+      border-top: 3px solid var(--black);
+      padding-top: 1rem;
+    }
+
+    .news-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .news-source {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      padding: 0.15rem 0.5rem;
+    }
+
+    .news-date {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: #999;
+      letter-spacing: 0.06em;
+    }
+
+    .news-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .news-title a {
+      color: var(--black);
+      text-decoration: none;
+    }
+
+    .news-title a:hover { text-decoration: underline; }
+
+    .news-excerpt {
+      font-size: 0.82rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .news-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: 1px solid #ccc;
+      padding: 0.15rem 0.45rem;
+      margin-top: 0.75rem;
+      margin-right: 0.3rem;
+      color: #777;
+    }
+
+    /* ── ABOUT STRIP ── */
+    .about-strip {
+      background: var(--black);
+      color: var(--white);
+      padding: 3rem 2rem;
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 3px solid var(--white);
+    }
+
+    .about-text { max-width: 600px; }
+    .about-text h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+    .about-text p { font-size: 0.9rem; opacity: 0.65; line-height: 1.7; }
+
+    .about-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .about-links a {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      opacity: 0.6;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .about-links a:hover { opacity: 1; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--white);
+      border-top: var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer p {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: #999;
+      letter-spacing: 0.06em;
+    }
+
+    .last-updated {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: #999;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── CONTRIBUTE BANNER ── */
+    .contribute {
+      background: var(--white);
+      border: 3px solid var(--black);
+      margin: 0 2rem 3rem;
+      max-width: calc(1100px - 4rem);
+      margin-left: auto;
+      margin-right: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .contribute p {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+    }
+
+    .contribute a {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 0.6rem 1.2rem;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+
+    .contribute a:hover { opacity: 0.75; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; }
+      .nav-links { gap: 1rem; }
+      .hero { padding: 3rem 1rem 3rem; }
+      .hero-stats { gap: 1.5rem; }
+      .section { padding: 3rem 1rem; }
+      .leg-table th:nth-child(3),
+      .leg-table td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">BANNED</a>
+    <ul class="nav-links">
+      <li><a href="#tracker">Platforms</a></li>
+      <li><a href="#legislation">Laws</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a href="https://github.com/JustOffline/Off-LineNews" target="_blank">GitHub ↗</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">Global Social Media Censorship Tracker · Updated June 2026</p>
+    <h1 class="hero-title">WHO'S<br>BANNING<br>WHAT.</h1>
+    <p class="hero-sub">A real-time scorecard tracking social media bans, platform restrictions, and digital censorship legislation worldwide. No spin. Just status.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-number">40+</span>
+        <span class="stat-label">Countries with active bans</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">12</span>
+        <span class="stat-label">Platforms tracked</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">60+</span>
+        <span class="stat-label">Bills in progress</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">3.2B</span>
+        <span class="stat-label">Users affected globally</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORM TRACKER -->
+  <section id="tracker">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">1.0</span>
+        <h2 class="section-title">PLATFORM STATUS TRACKER</h2>
+      </div>
+
+      <div class="tracker-grid">
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">TikTok</span>
+            <span class="status-badge at-risk">AT RISK</span>
+          </div>
+          <div class="card-countries">🇺🇸 US · 🇮🇳 India (banned) · 🇦🇺 AU (gov devices)</div>
+          <div class="card-latest">US ban law passed Jan 2025, enforcement repeatedly delayed amid legal challenges. India permanently banned in 2020. Australia restricted on government devices.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">X / Twitter</span>
+            <span class="status-badge restricted">RESTRICTED</span>
+          </div>
+          <div class="card-countries">🇹🇷 Turkey · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇵🇰 Pakistan</div>
+          <div class="card-latest">Brazil suspended X in Aug 2024 over non-compliance with court orders; restored Oct 2024. Turkey has a history of periodic throttling. Nigeria blocked for 7 months in 2021–22.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Instagram</span>
+            <span class="status-badge banned">BANNED</span>
+          </div>
+          <div class="card-countries">🇮🇷 Iran · 🇨🇳 China · 🇷🇺 Russia (restricted)</div>
+          <div class="card-latest">Permanently blocked in China since 2014 and Iran since 2014. Russia added Meta platforms to its list of "extremist organisations" in 2022, restricting access.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Facebook</span>
+            <span class="status-badge banned">BANNED</span>
+          </div>
+          <div class="card-countries">🇨🇳 China · 🇮🇷 Iran · 🇰🇵 North Korea · 🇷🇺 Russia</div>
+          <div class="card-latest">One of the most broadly blocked platforms globally. China's firewall has blocked it since 2009. Russia designated Meta an extremist org in 2022. Myanmar blocked it in Feb 2021 following the military coup.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">YouTube</span>
+            <span class="status-badge restricted">RESTRICTED</span>
+          </div>
+          <div class="card-countries">🇨🇳 China · 🇮🇷 Iran · 🇷🇺 Russia (throttled)</div>
+          <div class="card-latest">Blocked in China and Iran. Russia began throttling YouTube in 2024 as part of broader internet sovereignty measures, with speeds reportedly reduced by up to 40%.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Telegram</span>
+            <span class="status-badge restricted">RESTRICTED</span>
+          </div>
+          <div class="card-countries">🇧🇷 Brazil · 🇪🇸 Spain (temp) · 🇮🇷 Iran</div>
+          <div class="card-latest">Brazil suspended Telegram in Aug 2024 over failure to remove neo-Nazi content. Spain's Supreme Court ordered a 5-day block in Mar 2024 amid copyright dispute. CEO Pavel Durov arrested in France in Aug 2024.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">WhatsApp</span>
+            <span class="status-badge banned">BANNED</span>
+          </div>
+          <div class="card-countries">🇨🇳 China · 🇰🇵 North Korea · 🇨🇺 Cuba (restricted)</div>
+          <div class="card-latest">Blocked as part of China's Great Firewall. North Korea restricts all foreign internet platforms. Cuba has faced repeated messaging app blocks during protest periods.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">LinkedIn</span>
+            <span class="status-badge banned">BANNED</span>
+          </div>
+          <div class="card-countries">🇷🇺 Russia · 🇨🇳 China</div>
+          <div class="card-latest">Russia blocked LinkedIn in 2016 for non-compliance with data localisation laws — the first major Western platform to be blocked there. China blocked it in 2023 after removing its social feed.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Twitch</span>
+            <span class="status-badge restricted">RESTRICTED</span>
+          </div>
+          <div class="card-countries">🇹🇷 Turkey · 🇨🇳 China · 🇰🇷 South Korea (partial)</div>
+          <div class="card-latest">Turkey blocked Twitch in Aug 2024 over refusal to appoint a local representative. South Korea restricted access to streams broadcasting illegal gambling content.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Bluesky</span>
+            <span class="status-badge at-risk">MONITORING</span>
+          </div>
+          <div class="card-countries">🇧🇷 Brazil (briefly blocked 2024)</div>
+          <div class="card-latest">Brazil's Supreme Court ordered Bluesky blocked in Aug 2024 for failing to appoint a legal representative. Block lifted within days after compliance. First significant test of the platform's legal resilience.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Pinterest</span>
+            <span class="status-badge banned">BANNED</span>
+          </div>
+          <div class="card-countries">🇨🇳 China · 🇮🇷 Iran · 🇰🇵 North Korea</div>
+          <div class="card-latest">Blocked as part of China's Great Firewall. Blocked in Iran since 2012. Access prohibited in North Korea as part of its broader internet blackout.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="card-top">
+            <span class="platform-name">Discord</span>
+            <span class="status-badge restricted">RESTRICTED</span>
+          </div>
+          <div class="card-countries">🇨🇳 China · 🇷🇺 Russia · 🇹🇷 Turkey (periodic)</div>
+          <div class="card-latest">Blocked in China. Russia has issued repeated block orders against Discord, citing failure to remove content deemed illegal. Turkey has periodically throttled or blocked it during civil unrest.</div>
+          <div class="card-date">Last updated: June 2026</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- LEGISLATION -->
+  <section id="legislation">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">2.0</span>
+        <h2 class="section-title">LEGISLATION TRACKER</h2>
+      </div>
+
+      <table class="leg-table">
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th>Bill / Law</th>
+            <th>Targets</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="leg-country">🇺🇸 United States</td>
+            <td>PAFACA (Protecting Americans from Foreign Adversary Controlled Applications Act)</td>
+            <td>TikTok / ByteDance</td>
+            <td><span class="leg-status passed">Signed Law</span></td>
+            <td>Apr 2024</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇪🇺 European Union</td>
+            <td>Digital Services Act (DSA)</td>
+            <td>All large platforms</td>
+            <td><span class="leg-status passed">In Force</span></td>
+            <td>Feb 2024</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇬🇧 United Kingdom</td>
+            <td>Online Safety Act</td>
+            <td>All platforms</td>
+            <td><span class="leg-status passed">In Force</span></td>
+            <td>Oct 2023</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇦🇺 Australia</td>
+            <td>Online Safety Amendment (Social Media Minimum Age) Act</td>
+            <td>Social platforms (under-16s)</td>
+            <td><span class="leg-status passed">Passed</span></td>
+            <td>Nov 2024</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇧🇷 Brazil</td>
+            <td>PL 2630 – Fake News Bill</td>
+            <td>Social platforms</td>
+            <td><span class="leg-status pending">Stalled</span></td>
+            <td>Pending 2024</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇺🇸 United States</td>
+            <td>KOSA – Kids Online Safety Act</td>
+            <td>Platforms with minors</td>
+            <td><span class="leg-status pending">Senate Passed</span></td>
+            <td>Jul 2024</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇮🇳 India</td>
+            <td>Digital Personal Data Protection Act</td>
+            <td>All platforms</td>
+            <td><span class="leg-status passed">Passed</span></td>
+            <td>Aug 2023</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇿🇦 South Africa</td>
+            <td>Online Safety Bill (draft)</td>
+            <td>Social media platforms</td>
+            <td><span class="leg-status pending">Draft Stage</span></td>
+            <td>2024–2025</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇷🇺 Russia</td>
+            <td>Internet Sovereignty Law (RuNet)</td>
+            <td>All foreign platforms</td>
+            <td><span class="leg-status passed">Active</span></td>
+            <td>2019 (ongoing)</td>
+          </tr>
+          <tr>
+            <td class="leg-country">🇨🇳 China</td>
+            <td>Cybersecurity Law + Regulations on Algorithm Recommendations</td>
+            <td>All platforms</td>
+            <td><span class="leg-status passed">Active</span></td>
+            <td>2017 + 2022</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section id="news">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">3.0</span>
+        <h2 class="section-title">LATEST NEWS</h2>
+      </div>
+
+      <!-- NEWS_INJECT_START -->
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-meta">
+            <span class="news-source">BANNED Tracker</span>
+            <span class="news-date">Awaiting first run</span>
+          </div>
+          <h3 class="news-title">News will auto-populate after the first GitHub Actions run</h3>
+          <p class="news-excerpt">This section updates automatically every day at 07:00 UTC via GitHub Actions, pulling from free RSS feeds across BBC, Guardian, Al Jazeera, OONI, EFF, Rest of World, and more.</p>
+          <span class="news-tag">Auto</span>
+        </article>
+
+      </div>
+      <!-- NEWS_INJECT_END -->
+    </div>
+  </section>
+
+  <!-- CONTRIBUTE BANNER -->
+  <div class="contribute">
+    <p>📋 &nbsp;Spotted missing data or a new ban? This tracker is community-maintained on GitHub.</p>
+    <a href="https://github.com/JustOffline/Off-LineNews/issues/new" target="_blank">Submit an update ↗</a>
+  </div>
+
+  <!-- ABOUT STRIP -->
+  <div class="about-strip">
+    <div class="about-text">
+      <h2>WHY THIS EXISTS</h2>
+      <p>Social media bans are accelerating globally. Governments restrict platforms for reasons ranging from national security to political control to child safety. This tracker surfaces the facts without editorialising — who is banned, where, what law enabled it, and what just changed. Updated manually from primary sources. No ads. No paywall. Open source on GitHub.</p>
+    </div>
+    <div class="about-links">
+      <a href="https://github.com/JustOffline/Off-LineNews" target="_blank">View on GitHub ↗</a>
+      <a href="https://github.com/JustOffline/Off-LineNews/blob/main/SOURCES.md" target="_blank">Sources & Methodology ↗</a>
+      <a href="https://github.com/JustOffline/Off-LineNews/issues" target="_blank">Report an error ↗</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>BANNED · Social Media Censorship Tracker · Open source · No affiliation with any platform or government</p>
+    <span class="last-updated" id="updated">Data compiled from public sources · June 2026</span>
+  </footer>
+
+</body>
+</html>
