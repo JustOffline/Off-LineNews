@@ -243,47 +243,76 @@ def source_short(name: str) -> str:
     return replacements.get(name, name)
 
 
+# Maps source names to the data-ns values used by the filter buttons
+SOURCE_NS = {
+    "BBC Technology": "bbc",
+    "The Guardian":   "guardian",
+    "EFF":            "eff",
+    "Techdirt":       "techdirt",
+    "OONI":           "ooni",
+}
+
+# Keywords for data-countries attribute (matches filter button data-nc values)
+COUNTRY_DETECT = {
+    "uk":        ["united kingdom", "britain", "british", " uk ", "uk's", "uk-", "ofcom"],
+    "us":        ["united states", " u.s.", "american ", "congress", "senate", "trump", "ftc", "fcc"],
+    "iran":      ["iran"],
+    "australia": ["australia"],
+}
+
+
+def extract_countries(article: dict) -> str:
+    haystack = (
+        " " + (article.get("title") or "") + " " +
+        (article.get("summary") or "") + " "
+    ).lower()
+    countries = [
+        code for code, keywords in COUNTRY_DETECT.items()
+        if any(kw in haystack for kw in keywords)
+    ]
+    return " ".join(countries)
+
+
 # ── HTML GENERATION ──────────────────────────────────────────────────────────
 
 def render_card(article: dict) -> str:
-    title   = html.escape(article.get("title") or "Untitled")
-    link    = html.escape(article.get("link") or "#")
-    excerpt = html.escape(truncate(clean_html(article.get("summary") or "")))
-    source  = html.escape(source_short(article.get("source") or ""))
-    date    = html.escape(format_date(article.get("parsed_date")))
-    tags    = extract_tags(article)
+    title      = html.escape(article.get("title") or "Untitled")
+    link       = html.escape(article.get("link") or "#")
+    excerpt    = html.escape(truncate(clean_html(article.get("summary") or "")))
+    src_name   = article.get("source") or ""
+    source     = html.escape(source_short(src_name))
+    date       = html.escape(format_date(article.get("parsed_date")))
+    tags       = extract_tags(article)
+    data_ns    = SOURCE_NS.get(src_name, src_name.lower().split()[0] if src_name else "")
+    data_nc    = extract_countries(article)
 
-    tag_html = "\n          ".join(
-        f'<span class="news-tag">{html.escape(t)}</span>' for t in tags
-    )
+    tag_html = "".join(f'<span class="n-tag">{html.escape(t)}</span>' for t in tags)
 
-    return f"""        <article class="news-card">
-          <div class="news-meta">
-            <span class="news-source">{source}</span>
-            <span class="news-date">{date}</span>
-          </div>
-          <h3 class="news-title"><a href="{link}" target="_blank" rel="noopener noreferrer">{title}</a></h3>
-          <p class="news-excerpt">{excerpt}</p>
-          {tag_html}
-        </article>"""
+    return f"""    <article class="n-card" data-source="{data_ns}" data-countries="{data_nc}">
+      <div class="n-top"><span class="n-src">{source}</span><span class="n-date">{date}</span></div>
+      <h3 class="n-title"><a href="{link}" target="_blank" rel="noopener noreferrer">{title}</a></h3>
+      <p class="n-snip">{excerpt}</p>
+      <div class="n-foot">
+        <div class="n-tags">{tag_html}</div>
+        <a class="n-read" href="{link}" target="_blank" rel="noopener noreferrer">Read ↗</a>
+      </div>
+    </article>"""
 
 
 def render_block(articles: list[dict], last_run: str) -> str:
-    cards = "\n\n".join(render_card(a) for a in articles)
     if not articles:
-        cards = """        <article class="news-card">
-          <div class="news-meta">
-            <span class="news-source">BANNED Tracker</span>
-            <span class="news-date">Auto-update</span>
-          </div>
-          <h3 class="news-title">No matching articles found in today's fetch</h3>
-          <p class="news-excerpt">All RSS feeds were checked but no articles matched the tracked keywords. The next run will try again tomorrow at 07:00 UTC.</p>
-          <span class="news-tag">Auto</span>
-        </article>"""
+        cards = """    <article class="n-card" data-source="" data-countries="">
+      <div class="n-top"><span class="n-src">BANNED Tracker</span><span class="n-date">Auto-update</span></div>
+      <h3 class="n-title">No matching articles found in today's fetch</h3>
+      <p class="n-snip">All RSS feeds were checked but no articles matched the tracked keywords. The next run will try again tomorrow at 07:00 UTC.</p>
+      <div class="n-foot"><div class="n-tags"><span class="n-tag">Auto</span></div></div>
+    </article>"""
+    else:
+        cards = "\n\n".join(render_card(a) for a in articles)
 
     return f"""      <!-- NEWS_INJECT_START -->
       <!-- AUTO-GENERATED — DO NOT EDIT BETWEEN THESE MARKERS — last run: {last_run} -->
-      <div class="news-grid">
+      <div class="n-grid" id="n-grid">
 
 {cards}
 
